@@ -13,7 +13,7 @@
 							</div>
 						</div>
 						<div class="forum-menu-content-right">
-							<router-link :to="'/user/post/' + $route.params.topic" style="background-color: lightgreen">Add Post</router-link>
+							<router-link :to="'/user/post/' + $route.params.topic">Create Post</router-link>
 						</div>
 					</div>
 				</div>
@@ -63,11 +63,7 @@
 		mounted () {
 			window.scrollTo(0, 0)
 			let topic = this.$route.params.topic
-			if (topic !== 'general' &&
-				topic !== 'gaming' &&
-				topic !== 'music' &&
-				topic !== 'internet' &&
-				topic !== 'television') {
+			if (topic !== 'general') {
 				this.$router.push({ path: '/forum' })
 			} else {
 				this.topic = topic[0].toUpperCase() + topic.slice(1)
@@ -83,7 +79,6 @@
                   this.posts[index].id = snapshot.docs[index].id;
                   index++;
                 });
-                console.log(this.posts);
               }
 						})
 					}
