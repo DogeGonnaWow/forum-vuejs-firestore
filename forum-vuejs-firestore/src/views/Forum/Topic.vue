@@ -30,7 +30,8 @@
 										<div class="topic--posts-post-details-date">by {{ post.user }}&nbsp;<TimeSince :date="post.date" /></div>
 									</div>
 									<div class="topic--posts-post-stats">
-										<IconReplies /><span>{{ Object.keys(post.comments).length || 0 }}</span>
+                    <v-icon style="font-size: 2.0em;margin:3px;" color="black">question_answer</v-icon>
+                    <span>{{ Object.keys(post.comments).length || 0 }}</span>
 									</div>
 								</div>
 							</router-link>
@@ -43,7 +44,6 @@
 </template>
 
 <script>
-	import IconReplies from '../Forum/Icon/IconReplies'
 	import TimeSince from '../Forum/Utility/TimeSince'
   import firebase from 'firebase'
 
@@ -58,7 +58,6 @@
 			}
 		},
 		components: {
-			IconReplies,
 			TimeSince
 		}, 
 		mounted () {

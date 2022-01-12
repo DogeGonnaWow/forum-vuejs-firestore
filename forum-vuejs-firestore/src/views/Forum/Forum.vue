@@ -13,11 +13,11 @@
                 </div>
                 <div class="category--stats">
                   <div class="category--stats-posts">
-                    <IconPosts />
+                    <v-icon style="font-size: 2.0em;margin:3px;" color="black">description</v-icon>
                     <span>{{ generalPostCount }}</span>
                   </div>
                   <div class="category--stats-replies">
-                    <IconReplies />
+                    <v-icon style="font-size: 2.0em;margin:3px;" color="black">question_answer</v-icon>
                     <span>{{ generalPostReplyCount }}</span>
                   </div>
                 </div>
@@ -71,8 +71,6 @@
 </template>
 
 <script>
-import IconPosts from '../Forum/Icon/IconPosts'
-import IconReplies from '../Forum/Icon/IconReplies'
 import firebase from 'firebase'
 
 import 'firebase/database'
@@ -107,10 +105,6 @@ import 'firebase/auth'
         generalPostReplyCount: 0,
 
 			}
-		},
-		components: {
-			IconPosts,
-			IconReplies
 		},
 		methods: {
 			register () {
