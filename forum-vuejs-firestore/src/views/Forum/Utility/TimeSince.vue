@@ -25,7 +25,7 @@
 					todaysDay = '0' + todaysDay
 				}
 
-				if (todaysMonth.toString().charAt(0) != '1') {
+				if (todaysMonth.toString().charAt(0) !== '1') {
 					todaysMonth = '0' + todaysMonth
 				}
 
@@ -33,7 +33,7 @@
 				console.log((todaysMonth).toString() + (todaysDay).toString() + (todaysYear).toString())
 
 				// If posted today
-				if (this.date == (todaysMonth).toString() + (todaysDay).toString() + (todaysYear).toString()) {
+				if (this.date === (todaysMonth).toString() + (todaysDay).toString() + (todaysYear).toString()) {
 					this.data = '0 days ago'
 
 				// If not posted today
@@ -42,9 +42,9 @@
 					// If post day number is less than todays day number
 					if ((this.date[2] + this.date[3] < todaysDay) && 
 							// And post month is current month
-						(this.date[0] + this.date[1] == todaysMonth) && 
+						(this.date[0] + this.date[1] === todaysMonth) &&
 							// And post year is current year
-						(this.date[4] + this.date[5] + this.date[6] + this.date[7] == todaysYear)) {
+						(this.date[4] + this.date[5] + this.date[6] + this.date[7] === todaysYear)) {
 
 						difference = todaysDay - (this.date[2] + this.date[3])
 

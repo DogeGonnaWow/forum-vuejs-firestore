@@ -1,159 +1,111 @@
 <template>
-	<div class="view--forum">
-		<div>
-			<div class="forum-topics">
-				<ul>
-					<li>
-						<router-link to="forum/general">
-							<div class="category">
-								<div class="category--details">
-									<div class="category--details-title">General</div>
-									<div class="category--details-description">Anything and everything</div>
-								</div>
-								<div class="category--stats">
-									<div class="category--stats-posts">
-										<IconPosts />
-										<span>{{ generalPostCount }}</span>
-									</div>
-									<div class="category--stats-replies">
-										<IconReplies />
-										<span>{{ generalPostReplyCount }}</span>
-									</div>
-								</div>
-							</div>
-						</router-link>
-					</li>
-					<li>
-						<router-link to="forum/gaming">
-							<div class="category">
-								<div class="category--details">
-									<div class="category--details-title">Gaming</div>
-									<div class="category--details-description">This is just a sample description</div>
-								</div>
-								<div class="category--stats">
-									<div class="category--stats-posts">
-										<IconPosts />
-										<span>{{ gamingPostCount }}</span>
-									</div>
-									<div class="category--stats-replies">
-										<IconReplies />
-										<span>{{ gamingPostReplyCount }}</span>
-									</div>
-								</div>
-							</div>
-						</router-link>
-					</li>
-					<li>
-						<router-link to="forum/music">
-							<div class="category">
-								<div class="category--details">
-									<div class="category--details-title">Music</div>
-									<div class="category--details-description">This is another sample description</div>
-								</div>
-								<div class="category--stats">
-									<div class="category--stats-posts">
-										<IconPosts />
-										<span>{{ musicPostCount }}</span>
-									</div>
-									<div class="category--stats-replies">
-										<IconReplies />
-										<span>{{ musicPostReplyCount }}</span>
-									</div>
-								</div>
-							</div>
-						</router-link>
-					</li>
-					<li>
-						<router-link to="forum/internet">
-							<div class="category">
-								<div class="category--details">
-									<div class="category--details-title">Internet</div>
-									<div class="category--details-description">This is a unique sample description</div>
-								</div>
-								<div class="category--stats">
-									<div class="category--stats-posts">
-										<IconPosts />
-										<span>{{ internetPostCount }}</span>
-									</div>
-									<div class="category--stats-replies">
-										<IconReplies />
-										<span>{{internetPostReplyCount }}</span>
-									</div>
-								</div>
-							</div>
-						</router-link>
-					</li>
-					<li>
-						<router-link to="forum/television">
-							<div class="category">
-								<div class="category--details">
-									<div class="category--details-title">Television</div>
-									<div class="category--details-description">This is just a sample description</div>
-								</div>
-								<div class="category--stats">
-									<div class="category--stats-posts">
-										<IconPosts />
-										<span>{{ televisionPostCount }}</span>
-									</div>
-									<div class="category--stats-replies">
-										<IconReplies />
-										<span>{{ televisionPostReplyCount }}</span>
-									</div>
-								</div>
-							</div>
-						</router-link>
-					</li>
-				</ul>
-			</div>
-		</div>
-	</div>
+  <div class="view--forum">
+    <div v-if="this.authUser && this.authUser.isAnonymous === false">
+      <div class="forum-topics">
+        <h1>Forum</h1>
+        <ul>
+          <li>
+            <router-link to="forum/general">
+              <div class="category">
+                <div class="category--details">
+                  <div class="category--details-title">General</div>
+                  <div class="category--details-description">Talk about what you want</div>
+                </div>
+                <div class="category--stats">
+                  <div class="category--stats-posts">
+                    <IconPosts />
+                    <span>{{ generalPostCount }}</span>
+                  </div>
+                  <div class="category--stats-replies">
+                    <IconReplies />
+                    <span>{{ generalPostReplyCount }}</span>
+                  </div>
+                </div>
+              </div>
+            </router-link>
+          </li>
+        </ul>
+      </div>
+    </div>
+    <div v-else>
+      <div class="user-auth--error-message" v-if="emailIsInvalid">A valid email address is required.</div>
+      <div class="user-auth--error-message" v-if="usernameIsTaken">This username already exists.</div>
+      <div class="user-auth--error-message" v-if="usernameIsInvalid">You must choose a username.</div>
+      <div class="user-auth--error-message" v-if="signInInvalid">E-mail or password invalid.</div>
+      <div class="user-auth--signup" v-if="registered === false">
+        <div class="user-auth--form">
+          <form @submit.prevent="register">
+            <h1>Register</h1>
+            <label for="email">Username</label>
+            <input type="text" v-model="username" placeholder="Username" />
+            <label for="email">Email</label>
+            <input type="email" v-model="email" placeholder="account@domain.com" />
+            <label for="password">Password</label>
+            <input type="password" v-model="password" placeholder="••••••••••" />
+            <div>
+              <button>Submit</button>
+              <p>Already have an account? <a href="#" @click="registered = true">Sign in</a></p>
+            </div>
+          </form>
+        </div>
+      </div>
+      <div class="user-auth--signin" v-else>
+        <div class="user-auth--form">
+          <form @submit.prevent="signIn">
+            <h1>Sign in</h1>
+            <label for="email">Email</label>
+            <input type="email" v-model="email" placeholder="account@domain.com" />
+            <label for="password">Password</label>
+            <input type="password" v-model="password" placeholder="••••••••••" />
+            <div>
+              <button>Submit</button>
+              <p>Don't have an account? <a href="#" @click="registered = false">Register</a></p>
+              <p><a href="#" @click="resetPassword(email)">Forgot Password</a></p>
+              <p v-if="passwordHasBeenReset">Password reset email has been sent!</p>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
-	import IconPosts from '@/components/Body/Forum/Icon/IconPosts'
-	import IconReplies from '@/components//Body/Forum/Icon/IconReplies'
-  import firebase from 'firebase';
+import IconPosts from '../Forum/Icon/IconPosts'
+import IconReplies from '../Forum/Icon/IconReplies'
+import firebase from 'firebase'
 
+import 'firebase/database'
+import 'firebase/auth'
 
 	export default {
 		data () {
 			return {
-				authUser: null,
-				registered: true,
+        authUser: null,
+        registered: true,
 
-				users: '',
-				user: '',
-				username: '',
-				usernameIsTaken: false,
-				usernameIsInvalid: false,
+        users: [],
+        user: '',
+        username: '',
+        usernameIsTaken: false,
+        usernameIsInvalid: false,
 
-				email: '',
-				emailIsInvalid: false,
-				emailErrorMessage: '',
+        email: '',
+        emailIsInvalid: false,
+        emailErrorMessage: '',
 
-				password: '',
-				newPassword: null,
-				passwordHasBeenReset: false,
-				passwordIsInvalid: false,
-				passwordErrorMessage: '',
+        password: '',
+        newPassword: null,
+        passwordHasBeenReset: false,
+        passwordIsInvalid: false,
+        passwordErrorMessage: '',
 
-				signInInvalid: false,
-				signInErrorMessage: '',
+        signInInvalid: false,
+        signInErrorMessage: '',
 
-				generalPosts: '',
-				generalPostReplyCount: 0,
+        generalPosts: [],
+        generalPostReplyCount: 0,
 
-				gamingPosts: '',
-				gamingPostReplyCount: 0,
-
-				musicPosts: '',
-				musicPostReplyCount: 0,
-
-				internetPosts: '',
-				internetPostReplyCount: 0,
-
-				televisionPosts: '',
-				televisionPostReplyCount: 0
 			}
 		},
 		components: {
@@ -164,20 +116,20 @@
 			register () {
 				let match = false
 				for (let user in Object.entries(this.users)) {
-					if (Object.entries(this.users)[user][1]['username'] == this.username) {
+					if (Object.entries(this.users)[user][1]['username'] === this.username) {
 						match = true
 					}
 				}
-				if (this.username == '' || this.email == '' || this.password == '') {
+				if (this.username === '' || this.email === '' || this.password === '') {
 					this.signInInvalid = true
 					this.usernameIsTaken = false
 					this.usernameIsInvalid = false
 				}
-				else if (match == true) {
+				else if (match === true) {
 					this.signInInvalid = false
 					this.usernameIsTaken = true
 					this.usernameIsInvalid = false
-				} else if (this.username == '') {
+				} else if (this.username === '') {
 					this.signInInvalid = false
 					this.usernameIsInvalid = true
 					this.usernameIsTaken = false
@@ -186,8 +138,8 @@
 					this.usernameIsTaken = false
 					this.usernameIsInvalid = false
 					firebase.auth().createUserWithEmailAndPassword(this.email, this.password)
-						.then(() => {
-							this.registerUserName(this.username)
+						.then((user) => {
+							this.registerUserName(this.username, user.user.uid)
 						})
 						.catch(error => {
 							this.signInInvalid = true
@@ -195,18 +147,17 @@
 						})
 				}
 			},
-			registerUserName(username) {
-				// Set username in firebase rtdb
-				firebase.database().ref('users').child(this.authUser.uid)
-					.update({username: username})
+			registerUserName(username, uid) {
+				firebase.firestore().collection('users').doc(uid).set({username: username}).then(() => {
+          this.authUser.updateProfile({ displayName: username})
+              .catch(error => {
+                console.log(error)
+              })
+        })
 					.catch(error => {
 						console.log(error)
-					})
-				// Set username in firebase auth
-				this.authUser.updateProfile({ displayName: username})
-					.catch(error => {
-						console.log(error)
-					})
+					});
+
 			},
 			signOut () {
 				firebase.auth().signOut()
@@ -219,11 +170,11 @@
 					})
 			},
 			resetPassword(email) {
-				if (email == '') {
+				if (email === '') {
 					this.emailIsInvalid = true
 				} else {
-					const auth = getAuth();
-					sendPasswordResetEmail(auth, email)
+					const auth = firebase.getAuth();
+					this.sendPasswordResetEmail(auth, email)
 					.then(() => {
 						this.passwordHasBeenReset = true
 						this.emailIsInvalid = false
@@ -256,26 +207,6 @@
 				Object.keys(posts).forEach((post) => {
 					this.generalPostReplyCount += Object.keys(posts[post]['comments']).length
 				})
-			},
-			gamingPosts: function(posts) {
-				Object.keys(posts).forEach((post) => {
-					this.gamingPostReplyCount += Object.keys(posts[post]['comments']).length
-				})
-			},
-			musicPosts: function(posts) {
-				Object.keys(posts).forEach((post) => {
-					this.musicPostReplyCount += Object.keys(posts[post]['comments']).length
-				})
-			},
-			internetPosts: function(posts) {
-				Object.keys(posts).forEach((post) => {
-					this.musicPostReplyCount += Object.keys(posts[post]['comments']).length
-				})
-			},
-			television: function(posts) {
-				Object.keys(posts).forEach((post) => {
-					this.musicPostReplyCount += Object.keys(posts[post]['comments']).length
-				})
 			}
 		},
 		mounted () {
@@ -283,37 +214,23 @@
 		},
 		created () {
 			firebase.auth().onAuthStateChanged(user => { 
-				this.authUser = user
+				this.authUser = user;
+				console.log(this.authUser)
 				if (user) {
-					firebase.database().ref('users').on('value', snapshot => {
-						if (snapshot.val()) {
-							this.users = snapshot.val()
+					firebase.firestore().collection('users').onSnapshot( snapshot => {
+						if (snapshot) {
+              snapshot.forEach(users => {
+                this.users.push(users.data());
+              });
+              console.log(this.users);
 						}
 					})
-					firebase.database().ref('general').on('value', snapshot => {
-						if (snapshot.val()) {
-							this.generalPosts = snapshot.val()
-						}
-					})
-					firebase.database().ref('gaming').on('value', snapshot => {
-						if (snapshot.val()) {
-							this.gamingPosts = snapshot.val()
-						}
-					})
-					firebase.database().ref('music').on('value', snapshot => {
-						if (snapshot.val()) {
-							this.musicPosts = snapshot.val()
-						}
-					})
-					firebase.database().ref('internet').on('value', snapshot => {
-						if (snapshot.val()) {
-							this.internetPosts = snapshot.val()
-						}
-					})
-					firebase.database().ref('television').on('value', snapshot => {
-						if (snapshot.val()) {
-							this.televisionPosts = snapshot.val()
-						}
+					firebase.firestore().collection('general').onSnapshot(snapshot => {
+            if (snapshot) {
+              snapshot.forEach(generalPost => {
+                this.generalPosts.push(generalPost.data());
+              });
+            }
 					})
 				}
 			})

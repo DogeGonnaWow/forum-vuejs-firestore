@@ -1,27 +1,67 @@
 import Vue from 'vue'
 import VueRouter from 'vue-router'
-import Home from '../views/Home.vue'
+import Forum from '../views/Forum/Forum.vue'
 
 Vue.use(VueRouter)
 
 const routes = [
   {
     path: '/',
-    name: 'Home',
-    component: Home
+    name: 'Forum',
+    component: Forum
   },
   {
-    path: '/about',
-    name: 'About',
+    path: '/Forum',
+    name: 'Forum',
+    component: Forum
+  },
+  {
+    path: '/user/settings',
+    name: 'Settings',
     // route level code-splitting
     // this generates a separate chunk (about.[hash].js) for this route
     // which is lazy-loaded when the route is visited.
-    component: () => import(/* webpackChunkName: "about" */ '../views/About.vue')
+    component: () => import('../views/Forum/Settings.vue')
+  },
+  {
+    path: '/forum/:topic',
+    name: 'Topic',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import('../views/Forum/Topic.vue')
+  },
+  {
+    path: '/forum/:topic/:post',
+    name: 'Post',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import('../views/Forum/Post.vue')
+  },
+  {
+    path: '/user/post/:topic',
+    name: 'Add',
+    // route level code-splitting
+    // this generates a separate chunk (about.[hash].js) for this route
+    // which is lazy-loaded when the route is visited.
+    component: () => import('../views/Forum/AddPost.vue')
   }
 ]
 
 const router = new VueRouter({
-  routes
+  mode: 'history',
+  base: process.env.BASE_URL,
+  routes,
+  scrollBehavior (to) {
+    if (to.hash) {
+      return {
+        selector: to.hash,
+        offset: { x: 0, y: 150 },
+        behavior: 'smooth'
+      }
+    }
+  }
 })
 
 export default router

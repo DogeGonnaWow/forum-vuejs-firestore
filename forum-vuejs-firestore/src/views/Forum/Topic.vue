@@ -20,7 +20,7 @@
 				<div class="topic--posts">
 					<ul>
 						<li v-for="(post, index) in posts" :key="index" :index="index" ref="post">
-							<router-link :to="$route.params.topic + '/' + index">
+							<router-link :to="$route.params.topic + '/' + post.id">
 								<div class="topic--posts-post">
 									<div class="topic--posts-post-avatar" :class="post.color">
 										<span>{{ post.user.substring(0,1).toUpperCase() }}</span>
@@ -43,17 +43,16 @@
 </template>
 
 <script>
-	import IconReplies from '@/components//Body/Forum/Icon/IconReplies'
-	import TimeSince from '@/components//Body/Forum/Utility/TimeSince'
-
-  import firebase from 'firebase';
+	import IconReplies from '../Forum/Icon/IconReplies'
+	import TimeSince from '../Forum/Utility/TimeSince'
+  import firebase from 'firebase'
 
 
 	export default {
 		data () {
 			return {
 				topic: '',
-				posts: '',
+				posts: [],
 				authUser: '',
 				post: ''
 			}
@@ -65,11 +64,11 @@
 		mounted () {
 			window.scrollTo(0, 0)
 			let topic = this.$route.params.topic
-			if (topic != 'general' && 
-				topic != 'gaming' && 
-				topic != 'music' && 
-				topic != 'internet' && 
-				topic != 'television') {
+			if (topic !== 'general' &&
+				topic !== 'gaming' &&
+				topic !== 'music' &&
+				topic !== 'internet' &&
+				topic !== 'television') {
 				this.$router.push({ path: '/forum' })
 			} else {
 				this.topic = topic[0].toUpperCase() + topic.slice(1)
@@ -77,10 +76,16 @@
 					this.user = user
 					this.authUser = user
 					if (user) {
-						firebase.database().ref(topic).on('value', snapshot => {
-							if (snapshot.val()) {
-								this.posts = snapshot.val()
-							}
+						firebase.firestore().collection(topic).onSnapshot(snapshot => {
+							if (snapshot) {
+                let index = 0;
+                snapshot.forEach(post => {
+                  this.posts.push(post.data());
+                  this.posts[index].id = snapshot.docs[index].id;
+                  index++;
+                });
+                console.log(this.posts);
+              }
 						})
 					}
 				})

@@ -1,6 +1,5 @@
 <template>
 	<div class="view--post">
-		<UserMenu :user="this.authUser" />
 			<div class="view--post-breadcrumbs">
 				<ul>
 					<li><router-link to="/">Forum</router-link></li>
@@ -16,17 +15,18 @@
 					</div>
 					<div class="view--post-content-details">
 						<div class="view--post-content-details-title">{{ post.user }}</div>
-						<div class="view--post-content-details-date"><TimeSince :date="post.date" /></div>
+						<div class="view--post-content-details-date">
+              <TimeSince v-if="post.date" :date="post.date" /></div>
 					</div>
 					<div class="view--post-content-body">
 						<p>{{ post.content }}</p>
 					</div>
-					<div v-if="this.authUser.displayName == post.user" class="view--post-content-delete">
+					<div v-if="this.authUser.displayName === post.user" class="view--post-content-delete">
 						<button @click="deletePost($route.params.topic, $route.params.post)" class="delete"><span>&times;</span> Delete Post</button>
 					</div>
 				</div>
 				<div class="view--post-content-comments">
-					<h3>{{ Object.keys(post.comments).length || 0 }} replies</h3>
+					<h3>{{ post.comments ? post.comments.length : 0 }} replies</h3>
 					<ul>
 						<li v-for="(comment, index) in post.comments" :key="index" :index="index" ref="comment">
 							<div class="view--post-content-comments-comment">
@@ -35,12 +35,12 @@
 								</div>
 								<div class="view--post-content-details">
 									<div class="view--post-content-details-title">{{ comment.user }}</div>
-									<div class="view--post-content-details-date"><TimeSince :date="comment.date" /></div>
+									<div class="view--post-content-details-date"><TimeSince v-if="comment.date"  :date="comment.date" /></div>
 								</div>
 								<div class="view--post-content-body">
 									<p>{{ comment.content }}</p>
 								</div>
-								<div v-if="authUser.displayName == comment.user" class="view--post-content-comments-comment-delete">
+								<div v-if="authUser.displayName === comment.user" class="view--post-content-comments-comment-delete">
 									<button @click="deleteComment($route.params.topic, $route.params.post, index)" class="delete"><span>&times;</span> Delete Comment</button>
 								</div>
 							</div>
@@ -63,8 +63,8 @@
 </template>
 
 <script>
-	import TimeSince from '@/components/Body/Forum/Utility/TimeSince'
-  import firebase from 'firebase';
+	import TimeSince from '../Forum/Utility/TimeSince'
+  import firebase from 'firebase'
 
 	export default {
 		data () {
@@ -89,7 +89,7 @@
 			 * Remove post using topic and postId params
 			 */
 			deletePost(topic, postId) {
-				firebase.database().ref(topic + '/' + postId).remove()
+				firebase.firestore().collection(topic + '/').doc(postId).delete()
 				this.$router.push({ path: '/forum/' + topic })
 			},
 
@@ -97,21 +97,22 @@
 			 * Push new comment into to post.comment
 			 */
 			addComment(topic, postId) {
-				const 	groupA = ['A', 'a', 'b', 'c', 'D', 'd', 'E', 'V', 'F', 'f', 'G', 'g'],
+
+        const 	groupA = ['A', 'a', 'b', 'c', 'D', 'd', 'E', 'V', 'F', 'f', 'G', 'g'],
 						groupB = ['I', 'i', 'J', 'j', 'K', 'L', 'l', 'M', 'C', 'B', 'P', 'W'],
 						groupC = ['Q', 'p', 'R', 'S', 's', 'e', 'T', 'U', 'u','H', 'Z', 'Y'],
 						groupD = ['t', 'm', 'N', 'n', 'q', 'o','k', 'x', 'r', 'h', 'y', 'z'],
 						groupE = ['O', 'v', 'w', 'X', 'y'];
 				for (let i=0; i < groupA.length; i++) {
-					if (this.authUser.displayName.charAt(0) == groupA[i]) {
+					if (this.authUser.displayName.charAt(0) === groupA[i]) {
 						this.comment.color = 'blue'
-					} else if (this.authUser.displayName.charAt(0) == groupB[i]) {
+					} else if (this.authUser.displayName.charAt(0) === groupB[i]) {
 						this.comment.color = 'purple'
-					} else if (this.authUser.displayName.charAt(0) == groupC[i]) {
+					} else if (this.authUser.displayName.charAt(0) === groupC[i]) {
 						this.comment.color = 'pink'
-					} else if (this.authUser.displayName.charAt(0) == groupD[i]) {
+					} else if (this.authUser.displayName.charAt(0) === groupD[i]) {
 						this.comment.color = 'orange'
-					} else if (this.authUser.displayName.charAt(0) == groupE[i]) {
+					} else if (this.authUser.displayName.charAt(0) === groupE[i]) {
 						this.comment.color = 'yellow'
 					}
 				}
@@ -122,10 +123,10 @@
 				if (todaysDay < 10) {
 					todaysDay = '0' + todaysDay
 				}
-				if (todaysMonth.toString().charAt(0) != '1') {
+				if (todaysMonth.toString().charAt(0) !== '1') {
 					todaysMonth = '0' + todaysMonth
 				}
-				firebase.database().ref(topic + '/' + postId + '/comments').push(
+				firebase.firestore().collection(topic + '/' + postId + '/comments').add(
 					{
 						content: this.comment.content,
 						date: todaysMonth.toString() + todaysDay + todaysYear,
@@ -140,7 +141,7 @@
 			 * Delete comment using topic, postId params and commentId value
 			 */
 			deleteComment(topic, postId, commentId) {
-				firebase.database().ref(topic + '/' + postId + '/comments/' + commentId).remove()
+				firebase.firestore().collection(topic + '/' + postId + '/comments/').doc(commentId).delete();
 				this.comment.content = ''
 			}
 		},
@@ -151,12 +152,13 @@
 			this.postId = postId
 			let topic = this.$route.params.topic
 			this.topic = topic[0].toUpperCase() + topic.slice(1)
-			firebase.auth().onAuthStateChanged(user => { 
+			firebase.auth().onAuthStateChanged(user => {
 				this.authUser = user
-				if (user) {
-					firebase.database().ref(topic + '/' + postId).on('value', snapshot => {
-						if (snapshot.val()) {
-							this.post = snapshot.val()
+        if (user) {
+          console.log(topic+'/'+postId)
+					firebase.firestore().collection(topic).doc(postId).get().then( snapshot => {
+						if (snapshot.data()) {
+                this.post = snapshot.data();
 						}
 					})
 				}

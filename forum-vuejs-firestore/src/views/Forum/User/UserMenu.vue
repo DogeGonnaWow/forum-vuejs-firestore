@@ -8,9 +8,9 @@
 </template>
 
 <script>
-	import firebase from 'firebase/compat/app'
-	import 'firebase/compat/database'
-	import 'firebase/compat/auth'
+import firebase from 'firebase'
+	import 'firebase/database'
+	import 'firebase/auth'
 
 	export default {
 		data () {
@@ -22,7 +22,7 @@
 
 		methods: {
 			updateUserData () {
-				firebase.database().ref('users').child(this.authUser.uid)
+				firebase.firestore().collection('users').doc(this.authUser.uid)
 					.update({userData: this.userData})
 			},
 
@@ -35,13 +35,14 @@
 		},
 
 		created () {
-			firebase.auth().onAuthStateChanged(user => { 
+      console.log("UserMenu");
+
+      firebase.auth().onAuthStateChanged(user => {
 				this.authUser = user
 				if (user) {
-					firebase.database().ref('users').child(user.uid).on('value', snapshot => {
-						if (snapshot.val()) {
-							this.userData = snapshot.val().userData
-							this.$set(this.authUser, 'userData', this.userData)
+					firebase.firestore().collection('users').doc(user.uid).get().then(snapshot => {
+						if (snapshot.data()) {
+              this.authUser.displayName = snapshot.data().username;
 						}
 					})
 				}
