@@ -7,24 +7,30 @@
 					<li><a href="#">{{ post.title }}</a></li>
 				</ul>
 			</div>
-			<div class="view--post-content">
+			<div class="view--post-content" >
 				<div class="view--post-content-wrapper">
 					<h1>{{ post.title }}</h1>
-					<div class="view--post-content-avatar" :class="post.color">
+					<div class="view--post-content-avatar" :class="post.color" >
 						<span>{{ post.userLetter }}</span>
 					</div>
-					<div class="view--post-content-details">
+          <div style="border: lightgrey 1px solid;width:100%;padding:10px;border-radius: 5px;display:block">
+
+            <div v-if="this.authUser.displayName === post.user" class="view--post-content-delete">
+              <button @click="deletePost($route.params.topic, $route.params.post)" class="delete"> <v-icon color="red" style="font-size: 1.4em">delete</v-icon>  </button>
+            </div>
+
+          <div class="view--post-content-details">
 						<div class="view--post-content-details-title">{{ post.user }}</div>
+            <div style="width:50%;height:1px;background-color: lightgrey;margin-bottom:10px;margin-top:5px;"></div>
 						<div class="view--post-content-details-date">
               <TimeSince v-if="post.date" :date="post.date" /></div>
 					</div>
 					<div class="view--post-content-body">
 						<p>{{ post.content }}</p>
 					</div>
-					<div v-if="this.authUser.displayName === post.user" class="view--post-content-delete">
-						<button @click="deletePost($route.params.topic, $route.params.post)" class="delete"><span>&times;</span> Delete Post</button>
-					</div>
+
 				</div>
+        </div>
 				<div class="view--post-content-comments">
 					<h3>{{ post.comments ? post.comments.length : 0 }} replies</h3>
 					<ul>
@@ -216,7 +222,7 @@
 		}
 
 		.view--post-content {
-			display: flex;
+			display: block;
 			flex-flow: wrap;
 			padding: 0;
 			color: var(--green-dark);
@@ -235,11 +241,11 @@
 					border-radius: 20px;
 					border: none;
 					cursor: pointer;
+          float:right;
 					font-weight: bold;
 					line-height: 21px;
-					font-size: 14px;
+					font-size: 0.8em;
 					text-transform: uppercase;
-					padding: 10px 0;
 					}
 
 					span {
@@ -302,7 +308,7 @@
 				width: calc(100% - 124px);
 
 				.view--post-content-details-title {
-					font-size: 20px;
+					font-size: 0.9em;
 					line-height: 26px;
 					font-weight: bold;
 					color: var(--green-dark);
@@ -317,10 +323,10 @@
 
 			.view--post-content-body {
 				width: 100%;
-				margin: 0;
+				margin: 5px;
 
 				p {
-					font-size: 16px;
+					font-size: 0.9em;
 					line-height: 24px;
 				}
 			}

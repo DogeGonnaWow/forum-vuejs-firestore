@@ -13,7 +13,6 @@
 			date: String
 		},
 		mounted () {
-			//if (this.date) {
 				let 	today = new Date(),
 						todaysMonth = today.getMonth() + 1,
 						todaysYear = today.getFullYear(),
@@ -58,7 +57,7 @@
 					// If post day number is less than todays day number
 					} else if ((this.date[0] + this.date[1] < todaysMonth) &&
 						// And post year is current year
-						(this.date[4] + this.date[5] + this.date[6] + this.date[7] == todaysYear)) {
+						(this.date[4] + this.date[5] + this.date[6] + this.date[7] === todaysYear)) {
 						difference = todaysMonth - (this.date[0] + this.date[1])
 
 						// Account for pluralisation
