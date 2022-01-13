@@ -5,6 +5,10 @@
 npm install
 ```
 
+``` 
+    You have to init a firebase project and set configuration inside plugins/firebase-config.js to use it in main.js
+```
+
 ### Compiles and hot-reloads for development
 ```
 npm run serve

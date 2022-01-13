@@ -13,7 +13,7 @@
 							</div>
 						</div>
 						<div class="forum-menu-content-right">
-							<router-link :to="'/user/post/' + $route.params.topic">Create Post</router-link>
+              <router-link :to="'/user/post/' + $route.params.topic"><button style="text-decoration: none;color:grey;text-underline: none !important;border:none"><b>Create Post</b></button> </router-link>
 						</div>
 					</div>
 				</div>
@@ -30,7 +30,7 @@
 										<div class="topic--posts-post-details-date">by {{ post.user }}&nbsp;<TimeSince :date="post.date" /></div>
 									</div>
 									<div class="topic--posts-post-stats">
-                    <v-icon style="font-size: 2.0em;margin:3px;" color="black">question_answer</v-icon>
+                    <v-icon style="font-size: 1.5em;margin:3px;" color="black">question_answer</v-icon>
                     <span>{{ Object.keys(post.comments).length || 0 }}</span>
 									</div>
 								</div>
@@ -123,13 +123,9 @@
 			a.button {
 				padding: 10px 30px;
 				border-radius: 30px;
-				text-decoration: none;
 				font-weight: bold;
-				font-size: 20px;
-				background: var(--green-light);
-				color: #ffffff;
-				border: none;
-				outline: none;
+				font-size: 1.5em;
+
 
 				@media (min-width: 820px) {
 					padding: 15px 35px;
@@ -297,13 +293,13 @@
 				width: calc(100% - 124px);
 
 				.topic--posts-post-details-title {
-					font-size: 20px;
+					font-size: 1.2em;
 					line-height: 26px;
 					font-weight: bold;
 					color: var(--green-dark);
 				}
 				.topic--posts-post-details-date {
-					font-size: 16px;
+					font-size: 0.8em;
 					line-height: 24px;
 					color: var(--green-dark);
 					display: flex;

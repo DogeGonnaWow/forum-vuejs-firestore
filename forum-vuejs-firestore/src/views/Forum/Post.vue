@@ -15,47 +15,50 @@
 					</div>
           <div style="border: lightgrey 1px solid;width:100%;padding:10px;border-radius: 5px;display:block">
 
-            <div v-if="this.authUser.displayName === post.user" class="view--post-content-delete">
+            <div v-if="authUser.displayName === post.user" class="view--post-content-delete">
               <button @click="deletePost($route.params.topic, $route.params.post)" class="delete"> <v-icon color="red" style="font-size: 1.4em">delete</v-icon>  </button>
             </div>
 
           <div class="view--post-content-details">
 						<div class="view--post-content-details-title">{{ post.user }}</div>
-            <div style="width:50%;height:1px;background-color: lightgrey;margin-bottom:10px;margin-top:5px;"></div>
+            <div style="width:50%;height:1px;background-color: lightgrey;margin-bottom:3px;margin-top:5px;"></div>
 						<div class="view--post-content-details-date">
-              <TimeSince v-if="post.date" :date="post.date" /></div>
+              <TimeSince style="font-size: 0.7em;margin-left:5px" v-if="post.date" :date="post.date" /></div>
 					</div>
 					<div class="view--post-content-body">
 						<p>{{ post.content }}</p>
 					</div>
-
 				</div>
         </div>
 				<div class="view--post-content-comments">
-					<h3>{{ post.comments ? post.comments.length : 0 }} replies</h3>
-					<ul>
-						<li v-for="(comment, index) in post.comments" :key="index" :index="index" ref="comment">
+					<p><b><i style="font-size: 0.7em;margin-left:5px">{{ post.comments ? post.comments.length : 0 }} replies</i></b></p>
+					<ul v-if="post.comments">
+						<li  v-for="(commentUser, index) in post.comments" :key="index" :index="index" ref="comment">
 							<div class="view--post-content-comments-comment">
-								<div class="view--post-content-avatar" :class="comment.color">
-									<span>{{ comment.userLetter }}</span>
-								</div>
-								<div class="view--post-content-details">
-									<div class="view--post-content-details-title">{{ comment.user }}</div>
-									<div class="view--post-content-details-date"><TimeSince v-if="comment.date"  :date="comment.date" /></div>
-								</div>
-								<div class="view--post-content-body">
-									<p>{{ comment.content }}</p>
-								</div>
-								<div v-if="authUser.displayName === comment.user" class="view--post-content-comments-comment-delete">
-									<button @click="deleteComment($route.params.topic, $route.params.post, index)" class="delete"><span>&times;</span> Delete Comment</button>
-								</div>
+
+                <div style="border: lightgrey 1px solid;width:100%;padding:10px;border-radius: 5px;display:block">
+
+                  <div v-if="authUser.displayName === commentUser.user" class="view--post-content-delete">
+                    <button @click="deleteComment($route.params.topic, $route.params.post, commentUser.id)" class="delete"> <v-icon color="red" style="font-size: 1.4em">delete</v-icon>  </button>
+                  </div>
+
+                  <div class="view--post-content-details">
+                    <div class="view--post-content-details-title">{{ commentUser.user }}</div>
+                    <div style="width:50%;height:1px;background-color: lightgrey;margin-bottom:3px;margin-top:5px;"></div>
+                    <div class="view--post-content-details-date">
+                      <TimeSince style="font-size: 0.7em;margin-left:5px" v-if="commentUser.date" :date="commentUser.date" /></div>
+                  </div>
+                  <div class="view--post-content-body">
+                    <p>{{ commentUser.content }}</p>
+                  </div>
+                </div>
 							</div>
 						</li>
 					</ul>
 					<h3>Add Comment</h3>
-          <button onclick="addComment($route.params.topic, $route.params.post, comments)"> </button>
+          <button onclick="addComment($route.params.topic, $route.params.post)"> </button>
 
-          <form @submit.prevent="addComment($route.params.topic, $route.params.post, comments)">
+          <form @submit.prevent="addComment($route.params.topic, $route.params.post)">
 						<fieldset>
 							<div class="input-group">
 								<textarea v-model="comment.content"></textarea>
@@ -132,7 +135,7 @@
 				if (todaysMonth.toString().charAt(0) !== '1') {
 					todaysMonth = '0' + todaysMonth
 				}
-				firebase.firestore().collection(topic + '/' + postId + '/comments').add(
+				firebase.firestore().collection(topic).doc(postId).collection('comments').add(
 					{
 						content: this.comment.content,
 						date: todaysMonth.toString() + todaysDay + todaysYear,
@@ -147,7 +150,7 @@
 			 * Delete comment using topic, postId params and commentId value
 			 */
 			deleteComment(topic, postId, commentId) {
-				firebase.firestore().collection(topic + '/' + postId + '/comments/').doc(commentId).delete();
+				firebase.firestore().collection(topic).doc(postId).collection('comments').doc(commentId).delete();
 				this.comment.content = ''
 			}
 		},
@@ -161,13 +164,27 @@
 			firebase.auth().onAuthStateChanged(user => {
 				this.authUser = user
         if (user) {
-          console.log(topic+'/'+postId)
 					firebase.firestore().collection(topic).doc(postId).get().then( snapshot => {
 						if (snapshot.data()) {
                 this.post = snapshot.data();
+                this.post.comments = [];
+              firebase.firestore().collection(topic).doc(postId).collection('comments').onSnapshot((snapshot => {
+                if(snapshot){
+                  this.post.comments = [];
+                  let index = 0 ;
+                  snapshot.forEach(comment => {
+                    this.post.comments.push(comment.data());
+                    this.post.comments[index].id = snapshot.docs[index].id;
+                    index++;
+                  });
+
+                }
+              }))
 						}
 					})
-				}
+
+
+        }
 			})
 		}
 	}

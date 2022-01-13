@@ -2,7 +2,7 @@
   <div class="view--forum">
     <div v-if="this.authUser && this.authUser.isAnonymous === false">
       <div class="forum-topics">
-        <h1>Forum</h1>
+        <h2>Forum</h2>
         <ul>
           <li>
             <router-link to="forum/general">
@@ -13,11 +13,11 @@
                 </div>
                 <div class="category--stats">
                   <div class="category--stats-posts">
-                    <v-icon style="font-size: 2.0em;margin:3px;" color="black">description</v-icon>
+                    <v-icon style="font-size: 1.5em;margin:3px;" color="black">description</v-icon>
                     <span>{{ generalPostCount }}</span>
                   </div>
                   <div class="category--stats-replies">
-                    <v-icon style="font-size: 2.0em;margin:3px;" color="black">question_answer</v-icon>
+                    <v-icon style="font-size: 1.5em;margin:3px;" color="black">question_answer</v-icon>
                     <span>{{ generalPostReplyCount }}</span>
                   </div>
                 </div>
@@ -183,18 +183,6 @@ import 'firebase/auth'
 			generalPostCount () {
 				return Object.keys(this.generalPosts).length
 			},
-			gamingPostCount () {
-				return Object.keys(this.gamingPosts).length
-			},
-			musicPostCount () {
-				return Object.keys(this.musicPosts).length
-			},
-			internetPostCount () {
-				return Object.keys(this.internetPosts).length
-			},
-			televisionPostCount () {
-				return Object.keys(this.televisionPosts).length
-			}
 		},
 		watch: {
 			generalPosts: function(posts) {
@@ -216,7 +204,6 @@ import 'firebase/auth'
               snapshot.forEach(users => {
                 this.users.push(users.data());
               });
-              console.log(this.users);
 						}
 					})
 					firebase.firestore().collection('general').onSnapshot(snapshot => {
@@ -282,10 +269,8 @@ import 'firebase/auth'
 
 		.user-auth--form {
 			padding: 7px;
-			border-radius: inherit;
 			width: 100%;
 			max-width: 614px;
-			margin: 0 auto;
 			position: relative;
 			overflow: hidden;
 			border-radius: 10px;
@@ -319,19 +304,19 @@ import 'firebase/auth'
 
 	.forum-topics {
 
-		h1 {
-			font-size: 24px;
+		h2 {
+			font-size: 2em;
 			line-height: 36px;
 			color: var(--green-dark);
 			max-width: 960px;
 			margin: 0 auto;
-			padding: 20px 0 0;
+			padding: 10px 0 0;
 			text-align: left;
 
 			@media (min-width: 820px) {
-				font-size: 36px;
-				line-height: 55px;
-				padding: 40px 0 0;
+				font-size: 2em;
+				line-height: 40px;
+				padding: 20px 0 0;
 			}
 		}
 		
@@ -426,14 +411,14 @@ import 'firebase/auth'
 
 				.category--details {
 					.category--details-title {
-						font-size: 20px;
+						font-size: 1.2em;
 						line-height: 30px;
 						font-weight: bold;
 						color: var(--green-dark);
 					}
 
 					.category--details-description {
-						font-size: 16px;
+						font-size: 0.8em;
 						line-height: 24px;
 						color: #777777;
 						font-weight: lighter;
