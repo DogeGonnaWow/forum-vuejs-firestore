@@ -142,6 +142,7 @@
 						user: this.authUser.displayName,
 						color: this.comment.color,
 						userLetter: this.authUser.displayName.substring(0,1).toUpperCase(),
+            index: this.post.comments ? this.post.comments.length : 0
 					}
 				)
 			},
@@ -175,6 +176,7 @@
                   snapshot.forEach(comment => {
                     this.post.comments.push(comment.data());
                     this.post.comments[index].id = snapshot.docs[index].id;
+                    this.post.comments.sort((a,b) => a.index - b.index);
                     index++;
                   });
 
