@@ -27,7 +27,8 @@
 									</div>
 									<div class="topic--posts-post-details">
 										<div class="topic--posts-post-details-title">{{ post.title }}</div>
-										<div class="topic--posts-post-details-date">by {{ post.user }}&nbsp;<TimeSince :date="post.date" /></div>
+										<div class="topic--posts-post-details-date">by {{ post.user }}&nbsp;</div>
+                    <TimeSince style="font-size: 0.8em;color: grey" :date="post.date" />
 									</div>
 									<div class="topic--posts-post-stats">
                     <v-icon style="font-size: 1.5em;margin:3px;" color="black">question_answer</v-icon>

@@ -86,7 +86,7 @@ export default {
         todaysDay = '0' + todaysDay
       }
 
-      if (todaysMonth.toString().charAt(0) !== '1') {
+      if (todaysMonth.toString().length < 2) {
         todaysMonth = '0' + todaysMonth
       }
 

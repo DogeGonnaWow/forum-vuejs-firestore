@@ -1,5 +1,5 @@
 <template>
-	<div>{{ data }}</div>
+	<p>{{ data }}</p>
 </template>
 
 <script>
@@ -12,8 +12,8 @@
 		props: {
 			date: String
 		},
-		mounted () {
-				let 	today = new Date(),
+		mounted () {let newDate = this.date;
+				let today = new Date(),
 						todaysMonth = today.getMonth() + 1,
 						todaysYear = today.getFullYear(),
 						todaysDay = today.getDate()
@@ -23,29 +23,28 @@
 				if (todaysDay < 10) {
 					todaysDay = '0' + todaysDay
 				}
-
-				if (todaysMonth.toString().charAt(0) !== '1') {
-					todaysMonth = '0' + todaysMonth
+				if(!todaysMonth[1]){
+          todaysMonth = '0' + todaysMonth.toString();
+        }
+				if (!newDate[7]) {
+          newDate = '0' + newDate.toString();
 				}
-
-				console.log(this.date)
-				console.log((todaysMonth).toString() + (todaysDay).toString() + (todaysYear).toString())
-
+				console.log(newDate , (todaysMonth).toString() + (todaysDay).toString() + (todaysYear).toString())
 				// If posted today
-				if (this.date === (todaysMonth).toString() + (todaysDay).toString() + (todaysYear).toString()) {
-					this.data = '0 days ago'
-
+				if (newDate === (todaysMonth).toString() + (todaysDay).toString() + (todaysYear).toString()) {
+          newDate = '0 days ago'
+          this.data = newDate;
 				// If not posted today
 				} else {
 
 					// If post day number is less than todays day number
-					if ((this.date[2] + this.date[3] < todaysDay) && 
+					if ((newDate[2] + newDate[3] < (todaysDay).toString()) &&
 							// And post month is current month
-						(this.date[0] + this.date[1] === todaysMonth) &&
+						(newDate[0] + newDate[1] === (todaysMonth).toString()) &&
 							// And post year is current year
-						(this.date[4] + this.date[5] + this.date[6] + this.date[7] === todaysYear)) {
+						(newDate[4] + newDate[5] + newDate[6] + newDate[7] === (todaysYear).toString())) {
 
-						difference = todaysDay - (this.date[2] + this.date[3])
+						difference = todaysDay - (newDate[2] + newDate[3])
 
 						// Account for pluralisation
 						if (difference > 1) {
@@ -55,10 +54,10 @@
 						}
 
 					// If post day number is less than todays day number
-					} else if ((this.date[0] + this.date[1] < todaysMonth) &&
+					} else if ((newDate[0] + newDate[1] < (todaysMonth).toString()) &&
 						// And post year is current year
-						(this.date[4] + this.date[5] + this.date[6] + this.date[7] === todaysYear)) {
-						difference = todaysMonth - (this.date[0] + this.date[1])
+						(newDate[4] + newDate[5] + newDate[6] + newDate[7] === (todaysYear).toString())) {
+						difference = todaysMonth - (newDate[0] + newDate[1])
 
 						// Account for pluralisation
 						if (difference > 1) {
@@ -68,8 +67,8 @@
 						}
 
 					// If post year is less than current year
-					} else if ((this.date[4] + this.date[5] + this.date[6] + this.date[7]) < todaysYear) {
-						difference = todaysYear - (this.date[4] + this.date[5] + this.date[6] + this.date[7])
+					} else if ((newDate[4] + newDate[5] + newDate[6] + newDate[7]) < (todaysYear).toString()) {
+						difference = todaysYear - (newDate[4] + newDate[5] + newDate[6] + newDate[7])
 
 						// Account for pluralisation
 						if (difference > 1) {

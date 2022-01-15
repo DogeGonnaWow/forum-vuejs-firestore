@@ -23,7 +23,8 @@
 						<div class="view--post-content-details-title">{{ post.user }}</div>
             <div style="width:50%;height:1px;background-color: lightgrey;margin-bottom:3px;margin-top:5px;"></div>
 						<div class="view--post-content-details-date">
-              <TimeSince style="font-size: 0.7em;margin-left:5px" v-if="post.date" :date="post.date" /></div>
+              <TimeSince style="font-size: 0.7em;margin-left:5px" v-if="post.date" :date="post.date" />
+            </div>
 					</div>
 					<div class="view--post-content-body">
 						<p>{{ post.content }}</p>
@@ -46,7 +47,8 @@
                     <div class="view--post-content-details-title">{{ commentUser.user }}</div>
                     <div style="width:50%;height:1px;background-color: lightgrey;margin-bottom:3px;margin-top:5px;"></div>
                     <div class="view--post-content-details-date">
-                      <TimeSince style="font-size: 0.7em;margin-left:5px" v-if="commentUser.date" :date="commentUser.date" /></div>
+                      <TimeSince style="font-size: 0.7em;margin-left:5px"  :date="commentUser.date" />
+                    </div>
                   </div>
                   <div class="view--post-content-body">
                     <p>{{ commentUser.content }}</p>
@@ -132,7 +134,7 @@
 				if (todaysDay < 10) {
 					todaysDay = '0' + todaysDay
 				}
-				if (todaysMonth.toString().charAt(0) !== '1') {
+				if (todaysMonth.toString().length < 2) {
 					todaysMonth = '0' + todaysMonth
 				}
 				firebase.firestore().collection(topic).doc(postId).collection('comments').add(
@@ -142,9 +144,9 @@
 						user: this.authUser.displayName,
 						color: this.comment.color,
 						userLetter: this.authUser.displayName.substring(0,1).toUpperCase(),
-            index: this.post.comments ? this.post.comments.length : 0
+            index: this.post.comments[this.post.comments.length - 1 ] ? (this.post.comments[this.post.comments.length - 1].index + 1) : 0
 					}
-				)
+				).then(() => this.comment.content = "");
 			},
 
 			/**
@@ -174,6 +176,7 @@
                   this.post.comments = [];
                   let index = 0 ;
                   snapshot.forEach(comment => {
+                    console.log(comment.data())
                     this.post.comments.push(comment.data());
                     this.post.comments[index].id = snapshot.docs[index].id;
                     this.post.comments.sort((a,b) => a.index - b.index);
