@@ -8,7 +8,7 @@
 				</ul>
 			</div>
 			<div class="view--post-content" >
-				<div class="view--post-content-wrapper">
+				<div class="view--post-content-wrapper" v-show="page === 1">
 					<h1>{{ post.title }}</h1>
 					<div class="view--post-content-avatar" :class="post.color" >
 						<span>{{ post.userLetter }}</span>
@@ -32,7 +32,7 @@
 				</div>
         </div>
 				<div class="view--post-content-comments">
-					<p><b><i style="font-size: 0.7em;margin-left:5px">{{ post.comments ? post.comments.length : 0 }} replies</i></b></p>
+					<p><b><i style="font-size: 0.7em;margin-left:5px">{{ totalReplie ? totalReplie : 0 }} replies</i></b></p>
 					<ul v-if="post.comments">
 						<li  v-for="(commentUser, index) in post.comments" :key="index" :index="index" ref="comment">
 							<div class="view--post-content-comments-comment">
@@ -57,6 +57,16 @@
 							</div>
 						</li>
 					</ul>
+
+          <div class="text-center">
+            <v-pagination
+                @next="getPostsByPage()"
+                @previous="getPostsByPage()"
+                v-model="page"
+                :length="pages"
+                :total-visible="7"
+            ></v-pagination>
+          </div>
 					<h3>Add Comment</h3>
           <button onclick="addComment($route.params.topic, $route.params.post)"> </button>
 
@@ -80,7 +90,13 @@
 	export default {
 		data () {
 			return {
-				topic: '',
+        page: 1,
+        pages:8,
+        limitPosts:10,
+        totalReplie:0,
+        docList:[],
+        lastDoc:null,
+        topic: '',
 				postId: '',
 				authUser: '',
 				post: '',
@@ -103,7 +119,35 @@
 				firebase.firestore().collection(topic + '/').doc(postId).delete()
 				this.$router.push({ path: '/forum/' + topic })
 			},
+      getPostsByPage(){
+        let postId = this.$route.params.post;
+        this.postId = postId;
+        let topic = this.$route.params.topic;
+        this.topic = topic[0].toUpperCase() + topic.slice(1);
+        firebase.firestore().collection(topic).doc(postId).get().then( snapshot => {
+          if (snapshot.data()) {
+            this.post = snapshot.data();
+            this.post.comments = [];
+            firebase.firestore().collection(topic).doc(postId).collection('comments').where('index', '==', ((this.page - 1) * this.limitPosts)).get().then((snapshot => {
+              snapshot.forEach(doc => this.lastDoc = doc);
+              firebase.firestore().collection(topic).doc(postId).collection('comments').orderBy('index').limit(this.limitPosts).startAfter(this.lastDoc).onSnapshot((snapshot => {
+                if (snapshot) {
+                  this.post.comments = [];
+                  let index = 0;
+                  snapshot.forEach(comment => {
+                    console.log(comment.data())
+                    this.post.comments.push(comment.data());
+                    this.post.comments[index].id = snapshot.docs[index].id;
+                    this.post.comments.sort((a, b) => a.index - b.index);
+                    index++;
+                  });
 
+                }
+              }));
+            }))
+          }
+        })
+      },
 			/**
 			 * Push new comment into to post.comment
 			 */
@@ -137,6 +181,7 @@
 				if (todaysMonth.toString().length < 2) {
 					todaysMonth = '0' + todaysMonth
 				}
+
 				firebase.firestore().collection(topic).doc(postId).collection('comments').add(
 					{
 						content: this.comment.content,
@@ -144,7 +189,7 @@
 						user: this.authUser.displayName,
 						color: this.comment.color,
 						userLetter: this.authUser.displayName.substring(0,1).toUpperCase(),
-            index: this.post.comments[this.post.comments.length - 1 ] ? (this.post.comments[this.post.comments.length - 1].index + 1) : 0
+            index: this.docList[this.docList.length - 1 ] ? (this.docList[this.docList.length - 1].index + 1) : 0
 					}
 				).then(() => this.comment.content = "");
 			},
@@ -171,12 +216,11 @@
 						if (snapshot.data()) {
                 this.post = snapshot.data();
                 this.post.comments = [];
-              firebase.firestore().collection(topic).doc(postId).collection('comments').onSnapshot((snapshot => {
+              firebase.firestore().collection(topic).doc(postId).collection('comments').orderBy('index').limit(this.limitPosts).onSnapshot((snapshot => {
                 if(snapshot){
                   this.post.comments = [];
                   let index = 0 ;
                   snapshot.forEach(comment => {
-                    console.log(comment.data())
                     this.post.comments.push(comment.data());
                     this.post.comments[index].id = snapshot.docs[index].id;
                     this.post.comments.sort((a,b) => a.index - b.index);
@@ -187,12 +231,24 @@
               }))
 						}
 					})
+          firebase.firestore().collection(topic).doc(postId).collection('comments').onSnapshot((snapshot => {
+            this.docList = [];
+            let index = 0 ;
+            snapshot.forEach(doc => {
+              this.docList.push(doc.data());
+              this.docList[index].id = snapshot.docs[index].id;
+              this.docList.sort((a, b) => a.index - b.index);
+              index++;
+            }
+          );
 
-
+            this.totalReplie = this.docList.length;
+            this.pages = Math.ceil(this.totalReplie / this.limitPosts);
+          }))
         }
 			})
 		}
-	}
+  }
 </script>
 
 <style lang="scss" scoped>
