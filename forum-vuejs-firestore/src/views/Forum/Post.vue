@@ -62,6 +62,7 @@
             <v-pagination
                 @next="getPostsByPage()"
                 @previous="getPostsByPage()"
+                @input="getPostsByPage()"
                 v-model="page"
                 :length="pages"
                 :total-visible="7"
@@ -125,25 +126,27 @@
         let topic = this.$route.params.topic;
         this.topic = topic[0].toUpperCase() + topic.slice(1);
         firebase.firestore().collection(topic).doc(postId).get().then( snapshot => {
+          this.lastDoc = null;
           if (snapshot.data()) {
             this.post = snapshot.data();
-            this.post.comments = [];
             firebase.firestore().collection(topic).doc(postId).collection('comments').where('index', '==', ((this.page - 1) * this.limitPosts)).get().then((snapshot => {
               snapshot.forEach(doc => this.lastDoc = doc);
-              firebase.firestore().collection(topic).doc(postId).collection('comments').orderBy('index').limit(this.limitPosts).startAfter(this.lastDoc).onSnapshot((snapshot => {
-                if (snapshot) {
+              if(this.lastDoc) {
+                firebase.firestore().collection(topic).doc(postId).collection('comments').orderBy('index').limit(this.limitPosts).startAfter(this.lastDoc).onSnapshot((snapshot => {
                   this.post.comments = [];
-                  let index = 0;
-                  snapshot.forEach(comment => {
-                    console.log(comment.data())
-                    this.post.comments.push(comment.data());
-                    this.post.comments[index].id = snapshot.docs[index].id;
-                    this.post.comments.sort((a, b) => a.index - b.index);
-                    index++;
-                  });
+                  if (snapshot) {
+                    let index = 0;
+                    snapshot.forEach(comment => {
+                      console.log(comment.data())
+                      this.post.comments.push(comment.data());
+                      this.post.comments[index].id = snapshot.docs[index].id;
+                      this.post.comments.sort((a, b) => a.index - b.index);
+                      index++;
+                    });
 
-                }
-              }));
+                  }
+                }));
+              }
             }))
           }
         })
