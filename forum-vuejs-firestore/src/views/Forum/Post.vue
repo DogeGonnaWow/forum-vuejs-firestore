@@ -21,7 +21,7 @@
 
           <div class="view--post-content-details">
 						<div class="view--post-content-details-title">{{ post.user }}</div>
-            <div style="width:50%;height:1px;background-color: lightgrey;margin-bottom:3px;margin-top:5px;"></div>
+            <div style="width:100%;height:1px;background-color: lightgrey;margin-bottom:3px;margin-top:5px;"></div>
 						<div class="view--post-content-details-date">
               <TimeSince style="font-size: 0.7em;margin-left:5px" v-if="post.date" :date="post.date" />
             </div>
@@ -34,18 +34,18 @@
 				<div class="view--post-content-comments">
 					<p><b><i style="font-size: 0.7em;margin-left:5px">{{ totalReplie ? totalReplie : 0 }} replies</i></b></p>
 					<ul v-if="post.comments">
-						<li  v-for="(commentUser, index) in post.comments" :key="index" :index="index" ref="comment">
+						<li class="comments-in" v-for="(commentUser, index) in post.comments" :key="index" :index="index" ref="comment">
 							<div class="view--post-content-comments-comment">
 
                 <div style="border: lightgrey 1px solid;width:100%;padding:10px;border-radius: 5px;display:block">
 
                   <div v-if="authUser.displayName === commentUser.user" class="view--post-content-delete">
-                    <button @click="deleteComment($route.params.topic, $route.params.post, commentUser.id)" class="delete"> <v-icon color="red" style="font-size: 1.4em">delete</v-icon>  </button>
+                    <button @click="deleteComment($route.params.topic, $route.params.post, commentUser.id)" class="delete"> <v-icon color="red" style="font-size: 1.4em;margin-top:-40px;">delete</v-icon>  </button>
                   </div>
 
                   <div class="view--post-content-details">
                     <div class="view--post-content-details-title">{{ commentUser.user }}</div>
-                    <div style="width:50%;height:1px;background-color: lightgrey;margin-bottom:3px;margin-top:5px;"></div>
+                    <div style="width:100%;height:1px;background-color: lightgrey;margin-bottom:3px;margin-top:5px;"></div>
                     <div class="view--post-content-details-date">
                       <TimeSince style="font-size: 0.7em;margin-left:5px"  :date="commentUser.date" />
                     </div>
@@ -302,7 +302,38 @@
 			}
 		}
 
-		.view--post-content {
+    .comments-in{
+      animation: linear 0.5s fadeIn;
+    }
+
+    .fadeIn {
+      -webkit-animation-name: fadeIn;
+      animation-name: fadeIn;
+    }
+
+    @-webkit-keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+
+      to {
+        opacity: 1;
+      }
+    }
+
+
+
+    .view--post-content {
 			display: block;
 			flex-flow: wrap;
 			padding: 0;
@@ -386,7 +417,7 @@
 			}
 
 			.view--post-content-details {
-				width: calc(100% - 124px);
+				width: calc(100% - 1px);
 
 				.view--post-content-details-title {
 					font-size: 0.9em;
