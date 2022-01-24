@@ -39,6 +39,16 @@
 						</li>
 					</ul>
 				</div>
+        <div class="text-center">
+          <v-pagination
+              @next="getTopicsByPage()"
+              @previous="getTopicsByPage()"
+              @input="getTopicsByPage()"
+              v-model="page"
+              :length="pages"
+              :total-visible="7"
+          ></v-pagination>
+        </div>
 			</div>
 		</div>
 	</div>
@@ -55,7 +65,9 @@
 				topic: '',
 				posts: [],
 				authUser: '',
-				post: ''
+				post: '',
+        page: 1,
+        pages: 1,
 			}
 		},
 		components: {
@@ -78,6 +90,7 @@
                 snapshot.forEach(post => {
                   this.posts.push(post.data());
                   this.posts[index].id = snapshot.docs[index].id;
+                  this.posts.sort((a, b) => a.index - b.index);
                   index++;
                 });
               }
@@ -85,7 +98,12 @@
 					}
 				})
 			}
-		}
+		},
+    methods:{
+      getTopicsByPage(){
+
+      }
+    }
 	}
 </script>
 

@@ -48,7 +48,7 @@ export default {
       authUser: '',
       topic: '',
       route: '',
-
+      posts: [],
       post: {
         title: '',
         content: '',
@@ -92,37 +92,49 @@ export default {
 
       this.post.date = todaysMonth.toString() + todaysDay + todaysYear
       console.log(this.post.user.substring(0,1).toUpperCase())
-      // Push post to database
-      firebase.firestore().collection(this.route)
-          .add(
-              {
-                title: this.post.title,
-                content: this.post.content,
-                date: this.post.date,
-                user: this.post.user,
-                color: this.post.color,
-                userLetter: this.post.user.substring(0,1).toUpperCase(),
-                comments: ''
-              }
-          )
-          .catch(() => {
-            this.formStateError = true
-          })
-          .then(() => {
-            this.formStateSuccess = true
-            this.formStateError = false
-            this.formFieldNameError = false
-            this.formFieldEmailError = false
-            this.formFieldDetailsError = false
-          })
 
-      // Reset form data
-      this.post.title = '';
-      this.post.content = '';
+      firebase.firestore().collection(this.route).get().then(snapshot => {
+        if (snapshot) {
+          let index = 0;
+          snapshot.forEach(post => {
+            this.posts.push(post.data());
+            this.posts[index].id = snapshot.docs[index].id;
+            this.posts.sort((a, b) => a.index - b.index);
+            index++;
+          });
+          firebase.firestore().collection(this.route)
+              .add(
+                  {
+                    title: this.post.title,
+                    content: this.post.content,
+                    date: this.post.date,
+                    user: this.post.user,
+                    color: this.post.color,
+                    userLetter: this.post.user.substring(0,1).toUpperCase(),
+                    index: this.posts[this.posts.length - 1 ] ? (this.posts[this.posts.length - 1].index + 1) : 0,
+                    comments: ''
+                  }
+              )
+              .catch(() => {
+                this.formStateError = true
+              })
+              .then(() => {
+                this.formStateSuccess = true
+                this.formStateError = false
+                this.formFieldNameError = false
+                this.formFieldEmailError = false
+                this.formFieldDetailsError = false
+              })
 
-      // Redirect to topic
-      this.$router.push({ path: '/forum/' + this.route })
+          // Reset form data
+          this.post.title = '';
+          this.post.content = '';
 
+          // Redirect to topic
+          this.$router.push({ path: '/forum/' + this.route })
+        }
+
+      })
     }
   },
   mounted () {

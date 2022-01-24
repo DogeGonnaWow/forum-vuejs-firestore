@@ -143,7 +143,6 @@
                       this.post.comments.sort((a, b) => a.index - b.index);
                       index++;
                     });
-
                   }
                 }));
               }
