@@ -67,8 +67,9 @@
 				authUser: '',
 				post: '',
         page: 1,
-        pages: 1,
-			}
+        pages: 8,
+        limitPosts:5
+      }
 		},
 		components: {
 			TimeSince
@@ -79,19 +80,28 @@
 			if (topic !== 'general') {
 				this.$router.push({ path: '/forum' })
 			} else {
-				this.topic = topic[0].toUpperCase() + topic.slice(1)
+				this.topic = topic[0].toLowerCase() + topic.slice(1)
 				firebase.auth().onAuthStateChanged(user => { 
 					this.user = user
 					this.authUser = user
 					if (user) {
-						firebase.firestore().collection(topic).onSnapshot(snapshot => {
+            firebase.firestore().collection(this.topic).onSnapshot(snapshot => {
+              if (snapshot) {
+                let listTopic = []
+                snapshot.forEach(post => {
+                  listTopic.push(post.data());
+                });
+                this.pages = Math.ceil(listTopic.length / this.limitPosts);
+              }
+            });
+              firebase.firestore().collection(this.topic).limit(this.limitPosts).orderBy('index').onSnapshot(snapshot => {
 							if (snapshot) {
                 let index = 0;
                 snapshot.forEach(post => {
                   this.posts.push(post.data());
                   this.posts[index].id = snapshot.docs[index].id;
-                  this.posts.sort((a, b) => a.index - b.index);
                   index++;
+                  this.posts.sort((a, b) => a.index - b.index);
                 });
               }
 						})
@@ -101,7 +111,28 @@
 		},
     methods:{
       getTopicsByPage(){
-
+        firebase.firestore().collection(this.topic).onSnapshot( snapshot => {
+          this.lastDoc = null;
+          if (snapshot) {
+            firebase.firestore().collection(this.topic).where('index', '==', ((this.page - 1) * this.limitPosts)).get().then((snapshot => {
+              snapshot.forEach(doc => {this.lastDoc = doc});
+              if(this.lastDoc) {
+                firebase.firestore().collection(this.topic).orderBy('index').limit(this.limitPosts).startAfter(this.lastDoc).onSnapshot((snapshot => {
+                  this.posts = [];
+                  if (snapshot) {
+                    let index = 0;
+                    snapshot.forEach(post => {
+                      this.posts.push(post.data());
+                      this.posts[index].id = snapshot.docs[index].id;
+                      index++;
+                      this.posts.sort((a, b) => a.index - b.index);
+                    });
+                  }
+                }));
+              }
+            }))
+          }
+        })
       }
     }
 	}
