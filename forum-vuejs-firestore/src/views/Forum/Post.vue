@@ -19,6 +19,9 @@
               <button @click="deletePost($route.params.topic, $route.params.post)" class="delete"> <v-icon color="red" style="font-size: 1.4em">delete</v-icon>  </button>
             </div>
 
+            <div v-if="authUser.displayName === post.user" class="view--post-content-delete">
+              <button @click="editPost($route.params.topic, $route.params.post)" class="delete"> <v-icon color="grey" style="font-size: 1.4em;margin-right:10px;">edit</v-icon>  </button>
+            </div>
           <div class="view--post-content-details">
 						<div class="view--post-content-details-title">{{ post.user }}</div>
             <div style="width:100%;height:1px;background-color: lightgrey;margin-bottom:3px;margin-top:5px;"></div>
@@ -27,7 +30,13 @@
             </div>
 					</div>
 					<div class="view--post-content-body">
-						<p>{{ post.content }}</p>
+            <div v-if="isEditable">
+						<textarea v-model="post.content" style="width:100%"></textarea>
+              <v-btn  @click="validatePost($route.params.topic, $route.params.post, post)" style="background-color: #42b983;color:white;float:right;margin-right:15px;">Accept</v-btn>
+            </div>
+            <div v-else>
+              <p>{{post.content}}</p>
+            </div>
 					</div>
 				</div>
         </div>
@@ -42,7 +51,9 @@
                   <div v-if="authUser.displayName === commentUser.user" class="view--post-content-delete">
                     <button @click="deleteComment($route.params.topic, $route.params.post, commentUser.id)" class="delete"> <v-icon color="red" style="font-size: 1.4em;margin-top:-40px;">delete</v-icon>  </button>
                   </div>
-
+                  <div v-if="authUser.displayName === commentUser.user" class="view--post-content-delete">
+                    <button @click="editComment($route.params.topic, $route.params.post, commentUser.index)" class="delete"> <v-icon color="grey" style="font-size: 1.4em;margin-right:10px;margin-top:-40px;">edit</v-icon>  </button>
+                  </div>
                   <div class="view--post-content-details">
                     <div class="view--post-content-details-title">{{ commentUser.user }}</div>
                     <div style="width:100%;height:1px;background-color: lightgrey;margin-bottom:3px;margin-top:5px;"></div>
@@ -51,7 +62,13 @@
                     </div>
                   </div>
                   <div class="view--post-content-body">
-                    <p>{{ commentUser.content }}</p>
+                    <div v-if="commentUser.editable">
+                      <textarea v-model="commentUser.content" style="width:100%"></textarea>
+                      <v-btn  @click="validateEdition($route.params.topic, $route.params.post, commentUser)" style="background-color: #42b983;float:right;margin-right:15px;">Accept</v-btn>
+                    </div>
+                    <div v-else>
+                      <p>{{commentUser.content}}</p>
+                    </div>
                   </div>
                 </div>
 							</div>
@@ -95,6 +112,7 @@
         pages:8,
         limitPosts:10,
         totalReplie:0,
+        isEditable:false,
         docList:[],
         lastDoc:null,
         topic: '',
@@ -120,6 +138,23 @@
 				firebase.firestore().collection(topic + '/').doc(postId).delete()
 				this.$router.push({ path: '/forum/' + topic })
 			},
+      editPost(topic, postId) {
+        this.isEditable = !this.isEditable;
+      },
+      validatePost(topic, postId, userContent){
+        firebase.firestore().collection(topic + '/').doc(postId).update({content: userContent.content});
+        this.isEditable = !this.isEditable;
+        this.$forceUpdate();
+      },
+      editComment(topic, postId, index) {
+        this.post.comments[index].editable = !this.post.comments[index].editable;
+        this.$forceUpdate();
+      },
+      validateEdition(topic, postId, userContent){
+        firebase.firestore().collection(topic + '/').doc(postId).collection('comments').doc(userContent.id).update({content: userContent.content});
+        this.post.comments[userContent.index].editable = !this.post.comments[userContent.index].editable;
+        this.$forceUpdate();
+      },
       getPostsByPage(){
         let postId = this.$route.params.post;
         this.postId = postId;
@@ -129,10 +164,13 @@
           this.lastDoc = null;
           if (snapshot.data()) {
             this.post = snapshot.data();
-            firebase.firestore().collection(topic).doc(postId).collection('comments').where('index', '==', ((this.page - 1) * this.limitPosts)).get().then((snapshot => {
+            let indexLatest = ((this.page - 1) * this.limitPosts);
+            console.log("index" , indexLatest)
+            if(indexLatest < 0) indexLatest = 0;
+            firebase.firestore().collection(topic).doc(postId).collection('comments').where('index', '==', indexLatest).get().then((snapshot => {
               snapshot.forEach(doc => this.lastDoc = doc);
               if(this.lastDoc) {
-                firebase.firestore().collection(topic).doc(postId).collection('comments').orderBy('index').limit(this.limitPosts).startAfter(this.lastDoc).onSnapshot((snapshot => {
+                firebase.firestore().collection(topic).doc(postId).collection('comments').orderBy('index').limit(this.limitPosts).startAt(this.lastDoc).onSnapshot((snapshot => {
                   this.post.comments = [];
                   if (snapshot) {
                     let index = 0;
@@ -140,9 +178,12 @@
                       console.log(comment.data())
                       this.post.comments.push(comment.data());
                       this.post.comments[index].id = snapshot.docs[index].id;
+                      this.post.comments[index].editable = false;
                       this.post.comments.sort((a, b) => a.index - b.index);
+                      console.log( this.post.comments);
                       index++;
                     });
+
                   }
                 }));
               }
@@ -225,10 +266,10 @@
                   snapshot.forEach(comment => {
                     this.post.comments.push(comment.data());
                     this.post.comments[index].id = snapshot.docs[index].id;
-                    this.post.comments.sort((a,b) => a.index - b.index);
+                    this.post.comments[index].editable = false;
+                    this.post.comments.sort((a, b) => a.index - b.index);
                     index++;
                   });
-
                 }
               }))
 						}
