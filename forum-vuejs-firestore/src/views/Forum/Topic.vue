@@ -32,7 +32,7 @@
 									</div>
 									<div class="topic--posts-post-stats">
                     <v-icon style="font-size: 1.5em;margin:3px;" color="black">question_answer</v-icon>
-                    <span>{{ Object.keys(post.comments).length || 0 }}</span>
+                    <span>{{ post.comments || 0 }}</span>
 									</div>
 								</div>
 							</router-link>
@@ -85,6 +85,7 @@
 					this.user = user
 					this.authUser = user
 					if (user) {
+
             firebase.firestore().collection(this.topic).onSnapshot(snapshot => {
               if (snapshot) {
                 let listTopic = []
@@ -94,6 +95,7 @@
                 this.pages = Math.ceil(listTopic.length / this.limitPosts);
               }
             });
+
               firebase.firestore().collection(this.topic).limit(this.limitPosts).orderBy('index').onSnapshot(snapshot => {
 							if (snapshot) {
                 let index = 0;
@@ -103,8 +105,13 @@
                   index++;
                   this.posts.sort((a, b) => b.index - a.index);
                 });
+                this.posts.forEach(doc => {
+                  firebase.firestore().collection(topic).doc(doc.id).collection('comments').onSnapshot((snapshot => {
+                    doc.comments = snapshot.size;
+                  }));
+                });
               }
-						})
+						});
 					}
 				})
 			}

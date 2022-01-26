@@ -16,10 +16,7 @@
                     <v-icon style="font-size: 1.5em;margin:3px;" color="black">description</v-icon>
                     <span>{{ generalPostCount }}</span>
                   </div>
-                  <div class="category--stats-replies">
-                    <v-icon style="font-size: 1.5em;margin:3px;" color="black">question_answer</v-icon>
-                    <span>{{ generalPostReplyCount }}</span>
-                  </div>
+
                 </div>
               </div>
             </router-link>
