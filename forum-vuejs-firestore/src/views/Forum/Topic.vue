@@ -67,7 +67,7 @@
 				authUser: '',
 				post: '',
         page: 1,
-        pages: 8,
+        pages: 1,
         limitPosts:5
       }
 		},
