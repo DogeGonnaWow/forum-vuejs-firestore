@@ -29,7 +29,6 @@
 				if (!newDate[7]) {
           newDate = '0' + newDate.toString();
 				}
-				console.log(newDate , (todaysMonth).toString() + (todaysDay).toString() + (todaysYear).toString())
 				// If posted today
 				if (newDate === (todaysMonth).toString() + (todaysDay).toString() + (todaysYear).toString()) {
           newDate = '0 days ago'

@@ -46,8 +46,8 @@ export default {
   --pink: #b700df;
   --purple: #684cdc;
   --blue: #139eda;
-  --green-light: #42b983;
-  --green-dark: #273849;
+  --green-light: #dedede;
+  --green-dark: #494949;
 }
 
 .slideFade-enter-active, .slideFade-leave-active {

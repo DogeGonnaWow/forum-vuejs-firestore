@@ -91,7 +91,6 @@ export default {
       }
 
       this.post.date = todaysMonth.toString() + todaysDay + todaysYear
-      console.log(this.post.user.substring(0,1).toUpperCase())
 
       firebase.firestore().collection(this.route).get().then(snapshot => {
         if (snapshot) {

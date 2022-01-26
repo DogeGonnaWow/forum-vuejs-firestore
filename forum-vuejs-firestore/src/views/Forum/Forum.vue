@@ -197,7 +197,6 @@ import 'firebase/auth'
 		created () {
 			firebase.auth().onAuthStateChanged(user => { 
 				this.authUser = user;
-				console.log(this.authUser)
 				if (user) {
 					firebase.firestore().collection('users').onSnapshot( snapshot => {
 						if (snapshot) {

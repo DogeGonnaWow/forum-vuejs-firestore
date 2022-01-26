@@ -101,7 +101,7 @@
                   this.posts.push(post.data());
                   this.posts[index].id = snapshot.docs[index].id;
                   index++;
-                  this.posts.sort((a, b) => a.index - b.index);
+                  this.posts.sort((a, b) => b.index - a.index);
                 });
               }
 						})

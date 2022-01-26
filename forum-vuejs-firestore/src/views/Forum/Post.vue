@@ -52,7 +52,7 @@
                     <button @click="deleteComment($route.params.topic, $route.params.post, commentUser.id)" class="delete"> <v-icon color="red" style="font-size: 1.4em;margin-top:-40px;">delete</v-icon>  </button>
                   </div>
                   <div v-if="authUser.displayName === commentUser.user" class="view--post-content-delete">
-                    <button @click="editComment($route.params.topic, $route.params.post, commentUser.index)" class="delete"> <v-icon color="grey" style="font-size: 1.4em;margin-right:10px;margin-top:-40px;">edit</v-icon>  </button>
+                    <button @click="editComment($route.params.topic, $route.params.post, index, commentUser.index)" class="delete"> <v-icon color="grey" style="font-size: 1.4em;margin-right:10px;margin-top:-40px;">edit</v-icon>  </button>
                   </div>
                   <div class="view--post-content-details">
                     <div class="view--post-content-details-title">{{ commentUser.user }}</div>
@@ -64,7 +64,7 @@
                   <div class="view--post-content-body">
                     <div v-if="commentUser.editable">
                       <textarea v-model="commentUser.content" style="width:100%"></textarea>
-                      <v-btn  @click="validateEdition($route.params.topic, $route.params.post, commentUser)" style="background-color: #42b983;float:right;margin-right:15px;">Accept</v-btn>
+                      <v-btn  @click="validateEdition($route.params.topic, $route.params.post,index, commentUser)" style="background-color: #42b983;float:right;margin-right:15px;">Accept</v-btn>
                     </div>
                     <div v-else>
                       <p>{{commentUser.content}}</p>
@@ -146,13 +146,13 @@
         this.isEditable = !this.isEditable;
         this.$forceUpdate();
       },
-      editComment(topic, postId, index) {
-        this.post.comments[index].editable = !this.post.comments[index].editable;
+      editComment(topic, postId,indexRow, index) {
+        this.post.comments[indexRow].editable = !this.post.comments[indexRow].editable;
         this.$forceUpdate();
       },
-      validateEdition(topic, postId, userContent){
+      validateEdition(topic, postId,indexRow, userContent){
         firebase.firestore().collection(topic + '/').doc(postId).collection('comments').doc(userContent.id).update({content: userContent.content});
-        this.post.comments[userContent.index].editable = !this.post.comments[userContent.index].editable;
+        this.post.comments[indexRow].editable = !this.post.comments[indexRow].editable;
         this.$forceUpdate();
       },
       getPostsByPage(){
@@ -165,7 +165,6 @@
           if (snapshot.data()) {
             this.post = snapshot.data();
             let indexLatest = ((this.page - 1) * this.limitPosts);
-            console.log("index" , indexLatest)
             if(indexLatest < 0) indexLatest = 0;
             firebase.firestore().collection(topic).doc(postId).collection('comments').where('index', '==', indexLatest).get().then((snapshot => {
               snapshot.forEach(doc => this.lastDoc = doc);
@@ -175,12 +174,10 @@
                   if (snapshot) {
                     let index = 0;
                     snapshot.forEach(comment => {
-                      console.log(comment.data())
                       this.post.comments.push(comment.data());
                       this.post.comments[index].id = snapshot.docs[index].id;
                       this.post.comments[index].editable = false;
                       this.post.comments.sort((a, b) => a.index - b.index);
-                      console.log( this.post.comments);
                       index++;
                     });
 
@@ -225,16 +222,21 @@
 					todaysMonth = '0' + todaysMonth
 				}
 
+				let commentary = {
+          content: this.comment.content,
+          date: todaysMonth.toString() + todaysDay + todaysYear,
+          user: this.authUser.displayName,
+          color: this.comment.color,
+          userLetter: this.authUser.displayName.substring(0,1).toUpperCase(),
+          index: this.docList[this.docList.length - 1 ] ? (this.docList[this.docList.length - 1].index + 1) : 0
+        }
+
 				firebase.firestore().collection(topic).doc(postId).collection('comments').add(
-					{
-						content: this.comment.content,
-						date: todaysMonth.toString() + todaysDay + todaysYear,
-						user: this.authUser.displayName,
-						color: this.comment.color,
-						userLetter: this.authUser.displayName.substring(0,1).toUpperCase(),
-            index: this.docList[this.docList.length - 1 ] ? (this.docList[this.docList.length - 1].index + 1) : 0
-					}
-				).then(() => this.comment.content = "");
+            commentary
+				).then(() => {
+				  this.docList.push(commentary);
+				  this.comment.content = "";
+				});
 			},
 
 			/**

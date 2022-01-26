@@ -1,8 +1,8 @@
 <template>
-	<div class="user-menu" v-if="this.authUser && this.authUser.isAnonymous == false">
-		<div class="user-menu--content">
-			<p>Signed in as: <b>{{ authUser.displayName }}</b> (<router-link to="/user/settings">Settings</router-link>)</p>
-			<button class="button" @click="signOut">Sign out</button>
+	<div class="user-menu" v-if="this.authUser && this.authUser.isAnonymous === false">
+		<div class="user-menu--content" style="font-size: 0.9em">
+			<p>Welcome, <b>{{ authUser.displayName }}</b> - (<router-link to="/user/settings">User settings</router-link>)</p>
+			<button class="button"  style="font-size: 0.9em;width:100px;padding:5px;border-radius: 10px;" @click="signOut">Sign out</button>
 		</div>
 	</div>
 </template>
@@ -35,7 +35,6 @@ import firebase from 'firebase'
 		},
 
 		created () {
-      console.log("UserMenu");
 
       firebase.auth().onAuthStateChanged(user => {
 				this.authUser = user
@@ -92,7 +91,7 @@ import firebase from 'firebase'
 
 			button.button {
 				background: var(--green-light);
-				color: #ffffff;
+				color: #505050;
 				cursor: pointer;
 			}
 		}
