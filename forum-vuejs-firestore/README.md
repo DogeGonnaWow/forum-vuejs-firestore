@@ -1,6 +1,11 @@
 # forum-vuejs-firestore
 
 ## Project setup
+``` 
+    Create project on firebase
+    Set to enable the possibility to register in auth category
+```
+## before start
 ```
 npm install
 ```
